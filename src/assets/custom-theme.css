@@ -1,0 +1,130 @@
+/* src/assets/styles/custom-theme.css */
+:root {
+    /* Primary brand color (used by .btn-primary, bg-primary, etc.) */
+    --bs-primary: #1f4068;
+    /* Accent / secondary color */
+    --bs-secondary: #f4d35e;
+    /* Body background and text */
+    --bs-body-bg: #f4f6f8;
+    --bs-body-color: #212529;
+    /* Light / card backgrounds */
+    --bs-light: #ffffff;
+    /* Dark (for text on primary/nav) */
+    --bs-dark: #212529;
+    /* You can also override success, info, warning, danger if you like */
+    /* --bs-success: #3a8d8f; */
+    /* --bs-info:    #4a748f; */
+    /* --bs-warning: #e43f5a; */
+    /* --bs-danger:  #d72323; */
+}
+
+/* Dark section background consistent with navbar */
+.section-dark {
+    background-color: #343a40;
+    /* same as .bg-dark */
+    color: #f8f9fa;
+    /* light text */
+    padding: 3rem 0;
+}
+
+/* Make all cards in a dark section use a slightly lighter surface */
+.section-dark .card {
+    background-color: #3e424a;
+    color: #f8f9fa;
+    border: none;
+}
+
+/* Accent buttons on dark background use your secondary brand color */
+.section-dark .btn-outline-secondary {
+    color: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+}
+
+.section-dark .btn-outline-secondary:hover {
+    background-color: var(--bs-secondary);
+    color: #212529;
+}
+
+/* SectionHeader titles turn light automatically */
+.section-dark .section-header h2 {
+    color: #f8f9fa;
+}
+
+/* Light section background (white card on light page) */
+.section-light {
+    background-color: var(--bs-body-bg);
+    color: var(--bs-body-color);
+    padding: 3rem 0;
+}
+
+/* Cards in a light section use the default white surface + subtle border */
+.section-light .card {
+    background-color: var(--bs-light);
+    color: var(--bs-body-color);
+    border: 1px solid #e9ecef;
+}
+
+/* SectionHeader titles in light sections inherit dark text */
+.section-light .section-header h2 {
+    color: var(--bs-dark);
+}
+
+/* Custom button base (you can still use .custom-btn if you need a standalone class) */
+.custom-btn {
+    background-color: var(--bs-secondary);
+    border: 1px solid var(--bs-secondary);
+    color: var(--bs-dark);
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.25rem;
+    font-size: 0.9rem;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.custom-btn:hover {
+    background-color: rgba(244, 211, 94, 0.85);
+    transform: translateY(-1px);
+}
+
+/* Apply the same look to every <button> and .btn */
+button,
+.btn {
+    background-color: var(--bs-secondary) !important;
+    border: 1px solid var(--bs-secondary) !important;
+    color: var(--bs-dark) !important;
+    padding: 0.4rem 0.8rem !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.9rem !important;
+    transition: background-color 0.2s, transform 0.1s !important;
+}
+
+/* Hover state for all buttons */
+button:hover,
+.btn:hover {
+    background-color: rgba(244, 211, 94, 0.85) !important;
+    transform: translateY(-1px) !important;
+}
+
+/* make the brand name pop with gradient-clipped text */
+.brand-text {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-weight: 800;
+    /* extra bold */
+    font-size: 1.6rem;
+    /* a bit larger */
+    color: var(--bs-dark);
+    /* dark text for contrast */
+    background-color: var(--bs-secondary);
+    /* your highlight color */
+    padding: 0.2rem 0.5rem;
+    /* space around the text */
+    border-radius: 0.25rem;
+    /* soften the corners */
+    display: inline-block;
+    /* so padding applies neatly */
+}
+
+/* subtle hover effect */
+.navbar-brand:hover .brand-text {
+    transform: scale(1.05);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
