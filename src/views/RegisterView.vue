@@ -200,10 +200,20 @@ async function register() {
       return
     }
 
-    // if identities exist → new user, otherwise it's a duplicate
+    // if identities exist → new user
     if (data?.user?.identities?.length) {
+      // create an empty profile row
+      const { error: profileErr } = await supabase
+        .from('profiles')
+        .insert({ user_id: data.user.id, username: 'user_' + data.user.id })
+
+      if (profileErr) {
+        console.error('Error creating profile:', profileErr)
+      }
+
       router.push('/confirm-email')
     } else {
+      // duplicate email case
       errorMessage.value = 'Duplicated email, account has been registered'
       errorModal.value?.show()
     }

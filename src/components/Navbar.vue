@@ -4,6 +4,15 @@
       <router-link class="navbar-brand" to="/">
         <span class="brand-text">VivaPC</span>
       </router-link>
+
+      <!-- Warm welcome message -->
+      <span
+        v-if="auth.isLoggedIn && profileName"
+        class="navbar-text ms-3 text-light"
+      >
+        Welcome back, {{ profileName }}!
+      </span>
+
       <button
         class="navbar-toggler"
         type="button"
@@ -96,9 +105,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { supabase } from '@/utils/supabase'
 
 const auth = useAuthStore()
 const router = useRouter()
@@ -117,6 +127,25 @@ async function logout() {
   router.push('/login')
 }
 
+// fetch profile name from profiles table
+const profileName = ref<string>('')
+
+onMounted(async () => {
+  if (auth.isLoggedIn && auth.user?.id) {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('username')
+      .eq('user_id', auth.user.id)
+      .single()
+
+    if (data && data.username) {
+      profileName.value = data.username
+    } else {
+      console.error('Failed to fetch profile:', error)
+    }
+  }
+})
+
 // Categories list
 const categories = [
   { name: 'PC Bundles',    value: 'pc bundles' },
@@ -132,6 +161,10 @@ const categories = [
 .navbar-brand {
   font-weight: bold;
   font-size: 2rem;
+}
+
+.navbar-text {
+  font-size: 1rem;
 }
 
 .nav-link {
