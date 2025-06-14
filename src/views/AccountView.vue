@@ -125,14 +125,26 @@ async function getProfile() {
     userId.value = user.id
     account.email = user.email || ''
 
+    // Try to load existing profile
     const { data, error: profErr, status } = await supabase
       .from('profiles')
       .select('username')
       .eq('user_id', user.id)
       .single()
 
+    // if unexpected error
     if (profErr && status !== 406) throw profErr
-    account.username = data?.username ?? ''
+
+    // if no existing row, create a blank profile
+    if (status === 406) {
+      const { error: insertErr } = await supabase
+        .from('profiles')
+        .insert({ user_id: user.id })
+      if (insertErr) throw insertErr
+      account.username = ''
+    } else {
+      account.username = data?.username ?? ''
+    }
   } catch (err: any) {
     showErrorToast(err.message)
   } finally {

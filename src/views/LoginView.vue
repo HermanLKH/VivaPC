@@ -128,70 +128,48 @@ async function login() {
 
   const user = data.session?.user
   if (user) {
-    // 1) ensure Pinia store updates
+    // ensure Pinia store updates
     auth.setUser(user)
-
-    // 2) check if a profile row exists for this user_id
-    const { data: existing, error: checkErr, status } = await supabase
-      .from('profiles')
-      .select('user_id')
-      .eq('user_id', user.id)
-      .single()
-
-    // if real error (not “no rows”), log
-    if (checkErr && status !== 406) {
-      console.error('Error checking profile:', checkErr.message)
-    }
-    // if no existing row, insert blank profile
-    if (!existing) {
-      const { error: insertErr } = await supabase
-        .from('profiles')
-        .insert({ user_id: user.id })
-      if (insertErr) {
-        console.error('Error creating blank profile:', insertErr.message)
-      }
-    }
   }
 
   // navigate to account page
   router.push('/account')
 }
 
-// Dynamic positioning logic (same as RegisterView)
+// Dynamic positioning logic (unchanged)
 function updateImagePositions() {
   if (!containerRef.value || !formRef.value) return
   const vw = window.innerWidth
-  const containerRect = containerRef.value.getBoundingClientRect();
+  const containerRect = containerRef.value.getBoundingClientRect()
   const fr = formRef.value.getBoundingClientRect()
   const leftX = fr.left / 2
   const rightX = fr.right + (vw - fr.right) / 2
   const size = Math.min(400, Math.max(150, vw / 4))
 
-  const topOffset = fr.top - containerRect.top + fr.height / 2 - size / 2;
+  const topOffset = fr.top - containerRect.top + fr.height / 2 - size / 2
 
   leftImageStyle.value = {
-    position:     'absolute',
-    top:          `${topOffset}px`,
-    width:        `${size}px`,
-    height:       `${size}px`,
-    left:         `${leftX - size/2}px`,
-    opacity:      0.7,
-    zIndex:       1,
-    userSelect:   'none',
-    pointerEvents:'none',
-  };
-
+    position: 'absolute',
+    top: `${topOffset}px`,
+    width: `${size}px`,
+    height: `${size}px`,
+    left: `${leftX - size/2}px`,
+    opacity: 0.7,
+    zIndex: 1,
+    userSelect: 'none',
+    pointerEvents: 'none',
+  }
   rightImageStyle.value = {
-    position:     'absolute',
-    top:          `${topOffset}px`,
-    width:        `${size}px`,
-    height:       `${size}px`,
-    left:         `${rightX - size/2}px`,
-    opacity:      0.6,
-    zIndex:       1,
-    userSelect:   'none',
-    pointerEvents:'none',
-  };
+    position: 'absolute',
+    top: `${topOffset}px`,
+    width: `${size}px`,
+    height: `${size}px`,
+    left: `${rightX - size/2}px`,
+    opacity: 0.6,
+    zIndex: 1,
+    userSelect: 'none',
+    pointerEvents: 'none',
+  }
 }
 
 onMounted(() => {
