@@ -60,7 +60,7 @@
 
           <!-- Cart always visible -->
           <li class="nav-item">
-            <router-link class="nav-link" to="/cart">Cart</router-link>
+            <router-link class="nav-link" :to="auth.isLoggedIn ? '/cart' : '/login'">Cart</router-link>
           </li>
 
           <!-- If not logged in, show Register & Login -->
