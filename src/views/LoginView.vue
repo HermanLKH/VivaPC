@@ -1,3 +1,4 @@
+<!-- src/views/LoginView.vue -->
 <template>
   <div ref="containerRef" class="row justify-content-center mt-5 position-relative">
     <div ref="formRef" class="col-md-6 position-relative" style="z-index: 10;">
@@ -58,6 +59,41 @@
       :style="rightImageStyle"
       aria-hidden="true"
     />
+
+    <!-- Error Modal -->
+    <div
+      class="modal fade"
+      tabindex="-1"
+      ref="errorModalRef"
+      aria-labelledby="errorModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="errorModalLabel" class="modal-title">Login Failed</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            {{ errorMessage }}
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -67,6 +103,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import SectionHeader from '@/components/SectionHeader.vue'
 import { supabase } from '@/utils/supabase'
+import Modal from 'bootstrap/js/dist/modal'
 
 // refs for layout & images
 const containerRef = ref<HTMLElement | null>(null)
@@ -79,6 +116,11 @@ const form = reactive({ email: '', password: '' })
 const errors = reactive({ email: '', password: '' })
 const touched = reactive({ email: false })
 const loading = ref(false)
+
+// error modal state
+const errorModalRef = ref<HTMLElement | null>(null)
+const errorModal = ref<Modal | null>(null)
+const errorMessage = ref('')
 
 // Pinia auth & router
 const auth = useAuthStore()
@@ -110,7 +152,6 @@ function validate() {
 // Submit handler
 async function login() {
   if (!validate()) {
-    alert('Please fix the form errors first.')
     return
   }
 
@@ -122,7 +163,8 @@ async function login() {
   loading.value = false
 
   if (error) {
-    alert(`Login failed: ${error.message}`)
+    errorMessage.value = error.message
+    errorModal.value?.show()
     return
   }
 
@@ -153,7 +195,7 @@ function updateImagePositions() {
     top: `${topOffset}px`,
     width: `${size}px`,
     height: `${size}px`,
-    left: `${leftX - size/2}px`,
+    left: `${leftX - size / 2}px`,
     opacity: 0.7,
     zIndex: 1,
     userSelect: 'none',
@@ -164,7 +206,7 @@ function updateImagePositions() {
     top: `${topOffset}px`,
     width: `${size}px`,
     height: `${size}px`,
-    left: `${rightX - size/2}px`,
+    left: `${rightX - size / 2}px`,
     opacity: 0.6,
     zIndex: 1,
     userSelect: 'none',
@@ -175,6 +217,9 @@ function updateImagePositions() {
 onMounted(() => {
   updateImagePositions()
   window.addEventListener('resize', updateImagePositions)
+  if (errorModalRef.value) {
+    errorModal.value = new Modal(errorModalRef.value)
+  }
 })
 onBeforeUnmount(() => {
   window.removeEventListener('resize', updateImagePositions)

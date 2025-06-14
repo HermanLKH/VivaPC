@@ -69,6 +69,41 @@
       :style="rightImageStyle"
       aria-hidden="true"
     />
+
+    <!-- Error Modal -->
+    <div
+      class="modal fade"
+      tabindex="-1"
+      ref="errorModalRef"
+      aria-labelledby="errorModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 id="errorModalLabel" class="modal-title">Registration Error</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            {{ errorMessage }}
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -76,7 +111,8 @@
 import { reactive, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import SectionHeader from '@/components/SectionHeader.vue'
-import { supabase } from '@/utils/supabase'  // adjust path if needed
+import { supabase } from '@/utils/supabase'
+import Modal from 'bootstrap/js/dist/modal'
 
 const router = useRouter()
 
@@ -98,6 +134,11 @@ const errors = reactive({
 const touched = reactive({
   email: false,
 })
+
+// error modal state
+const errorModalRef = ref<HTMLElement | null>(null)
+const errorModal = ref<Modal | null>(null)
+const errorMessage = ref('')
 
 function validateEmail(email: string): boolean {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -145,10 +186,8 @@ function validate() {
 
 async function register() {
   if (!validate()) {
-    alert('Please fix the form errors first.')
     return
   }
-
   try {
     const { data, error } = await supabase.auth.signUp({
       email: form.email.trim(),
@@ -156,19 +195,24 @@ async function register() {
     })
 
     if (error) {
-      alert(`Sign up error: ${error.message}`)
+      errorMessage.value = error.message
+      errorModal.value?.show()
       return
     }
 
-    // Redirect to confirm email page instead of alert
-    router.push('/confirm-email')
-
+    // if identities exist → new user, otherwise it's a duplicate
+    if (data?.user?.identities?.length) {
+      router.push('/confirm-email')
+    } else {
+      errorMessage.value = 'Duplicated email, account has been registered'
+      errorModal.value?.show()
+    }
   } catch (err: any) {
-    alert(`Unexpected error: ${err.message || err}`)
+    errorMessage.value = err.message || String(err)
+    errorModal.value?.show()
   }
 }
 
-// Reactive refs for left/right image styles:
 const leftImageStyle = ref({})
 const rightImageStyle = ref({})
 
@@ -182,33 +226,25 @@ function updateImagePositions() {
   const leftCenterX = formRect.left / 2
   const rightCenterX = formRect.right + (viewportWidth - formRect.right) / 2
 
-  const maxSize = 400
-  const size = Math.min(
-    maxSize,
-    Math.max(150, viewportWidth / 4)
-  )
-
-  const leftImageLeft = leftCenterX - size / 2
-  const rightImageLeft = rightCenterX - size / 2
+  const size = Math.min(400, Math.max(150, viewportWidth / 4))
 
   leftImageStyle.value = {
     position: 'absolute',
     bottom: '0',
     width: `${size}px`,
     height: `${size}px`,
-    left: `${leftImageLeft}px`,
+    left: `${leftCenterX - size/2}px`,
     userSelect: 'none',
     pointerEvents: 'none',
     opacity: 0.7,
     zIndex: 1,
   }
-
   rightImageStyle.value = {
     position: 'absolute',
     bottom: '0',
     width: `${size}px`,
     height: `${size}px`,
-    left: `${rightImageLeft}px`,
+    left: `${rightCenterX - size/2}px`,
     userSelect: 'none',
     pointerEvents: 'none',
     opacity: 0.7,
@@ -219,6 +255,9 @@ function updateImagePositions() {
 onMounted(() => {
   updateImagePositions()
   window.addEventListener('resize', updateImagePositions)
+  if (errorModalRef.value) {
+    errorModal.value = new Modal(errorModalRef.value)
+  }
 })
 
 onBeforeUnmount(() => {
@@ -232,7 +271,7 @@ onBeforeUnmount(() => {
 }
 
 .negative-margin-up {
-  margin-top: -2rem; /* move "Create your account..." text slightly upward */
+  margin-top: -2rem; /* move text slightly upward */
   margin-bottom: 1rem;
 }
 </style>
