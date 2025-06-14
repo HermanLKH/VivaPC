@@ -161,25 +161,37 @@ async function login() {
 function updateImagePositions() {
   if (!containerRef.value || !formRef.value) return
   const vw = window.innerWidth
+  const containerRect = containerRef.value.getBoundingClientRect();
   const fr = formRef.value.getBoundingClientRect()
   const leftX = fr.left / 2
   const rightX = fr.right + (vw - fr.right) / 2
   const size = Math.min(400, Math.max(150, vw / 4))
 
+  const topOffset = fr.top - containerRect.top + fr.height / 2 - size / 2;
+
   leftImageStyle.value = {
-    position: 'absolute', bottom: '0',
-    width: `${size}px`, height: `${size}px`,
-    left: `${leftX - size/2}px`,
-    opacity: 0.7, zIndex: 1,
-    userSelect: 'none', pointerEvents: 'none',
-  }
+    position:     'absolute',
+    top:          `${topOffset}px`,
+    width:        `${size}px`,
+    height:       `${size}px`,
+    left:         `${leftX - size/2}px`,
+    opacity:      0.7,
+    zIndex:       1,
+    userSelect:   'none',
+    pointerEvents:'none',
+  };
+
   rightImageStyle.value = {
-    position: 'absolute', bottom: '0',
-    width: `${size}px`, height: `${size}px`,
-    left: `${rightX - size/2}px`,
-    opacity: 0.6, zIndex: 1,
-    userSelect: 'none', pointerEvents: 'none',
-  }
+    position:     'absolute',
+    top:          `${topOffset}px`,
+    width:        `${size}px`,
+    height:       `${size}px`,
+    left:         `${rightX - size/2}px`,
+    opacity:      0.6,
+    zIndex:       1,
+    userSelect:   'none',
+    pointerEvents:'none',
+  };
 }
 
 onMounted(() => {
